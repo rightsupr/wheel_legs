@@ -27,6 +27,8 @@
 
 #include "bsp_imu_pwm.h"
 #include "bsp_spi.h"
+// INS_task.c
+// 管理惯性测量单元的数据获取、处理及温度控制
 #include "bmi088driver.h"
 #include "ist8310driver.h"
 #include "pid.h"
@@ -139,6 +141,7 @@ fp32 INS_angle[3] = {0.0f, 0.0f, 0.0f};      //euler angle, unit rad.ŷ���
   * @retval         none
   */
 
+// IMU传感器读取任务，负责更新姿态估计和温度控制
 void INS_task(void const *pvParameters)
 {
     //wait a time
@@ -571,14 +574,15 @@ void DMA2_Stream2_IRQHandler(void)
     }
 }
 
+// 提供外部访问的姿态角度指针
 float* get_ins_angle() {
     return INS_angle;  
   }
-  //陀螺仪
+// 返回陀螺仪数据指针
   float* get_ins_gyro() {
     return INS_gyro;
   }
-  //加速度
+// 返回加速度计数据指针
   float* get_ins_accel() {
     return INS_accel;
   }

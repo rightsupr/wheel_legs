@@ -1,4 +1,5 @@
 #include "bsp_imu_pwm.h"
+// 使用定时器输出PWM以控制IMU温度
 #include "main.h"
 
 extern TIM_HandleTypeDef htim10;

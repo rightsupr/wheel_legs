@@ -2,6 +2,7 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "bsp_delay.h"
+// BMI088 传感器的底层硬件操作封装
 extern SPI_HandleTypeDef hspi1;
 
 void BMI088_GPIO_init(void)

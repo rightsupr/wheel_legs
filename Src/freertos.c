@@ -23,6 +23,7 @@
 #include "task.h"
 #include "main.h"
 #include "cmsis_os.h"
+// FreeRTOS 任务创建与调度相关代码
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -37,8 +38,8 @@
 
 osThreadId imuTaskHandle;
 osThreadId chassisTaskHandle;
-osThreadId calibrateTaskHandle;//大概校准操作的任�??
-osThreadId chassisTaskHandle;//���̿�������
+osThreadId calibrateTaskHandle;//å¤§æ¦‚æ ¡å‡†æ“ä½œçš„ä»»ï¿??
+osThreadId chassisTaskHandle;//ï¿½ï¿½ï¿½Ì¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -117,10 +118,13 @@ void MX_FREERTOS_Init(void) {
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+    // 创建校准任务
 	osThreadDef(calibrateTask, calibrate_task, osPriorityNormal, 0, 512);
   calibrateTaskHandle = osThreadCreate(osThread(calibrateTask), NULL);
+    // 创建IMU任务
 	
   osThreadDef(imuTask, INS_task, osPriorityRealtime, 0, 1024);
+    // 创建底盘控制任务
   imuTaskHandle = osThreadCreate(osThread(imuTask), NULL);
 
   osThreadDef(chassisTask, chassis_task, osPriorityNormal, 0, 1024);
