@@ -6,7 +6,13 @@
 #include "buzzer.h"
 #include "filter.h"
 
-#define BALANCE_WHEEL_R 0.06f //ƽ������Ӱ뾶m
+// lqr.c
+// 实现基于线性二次调节(LQR)的姿态控制算法
+// 根据腿长拟合 LQR 增益矩阵
+// 根据当前连杆角度求取虚拟腿角度
+// 通用矩阵乘法工具函数
+// 更新每条腿的状态变量（位置、速度等）
+#define BALANCE_WHEEL_R 0.06f //Æ½ºâ±øÂÖ×Ó°ë¾¶m
 
 struct MovingAverageFilter theta_ddot_filter_L, theta_ddot_filter_R;
 
@@ -165,6 +171,7 @@ static void state_variable_update(struct Leg *leg_L, struct Leg *leg_R, float ph
   leg_R->state_variable_feedback.phi_dot = phi_dot;
 }
 
+// 设置期望的状态变量（目标值）
 static void state_variable_set(struct Chassis *chassis) {
   if (chassis == NULL) {
     return;
@@ -185,6 +192,7 @@ static void state_variable_set(struct Chassis *chassis) {
   chassis->leg_R.state_variable_set_point.phi_dot = 0;
 }
 
+// 根据反馈与目标计算状态误差
 static void state_variable_error(struct Leg *leg_L, struct Leg *leg_R) {
   if (leg_L == NULL || leg_R == NULL) {
     return;
@@ -209,6 +217,7 @@ static void state_variable_error(struct Leg *leg_L, struct Leg *leg_R) {
       leg_R->state_variable_feedback.phi_dot - leg_R->state_variable_set_point.phi_dot;
 }
 
+// 根据状态误差计算轮子和关节的控制输出
 static void state_variable_out(struct Chassis *chassis) {
   if (chassis == NULL) {
     return;
@@ -297,6 +306,7 @@ static void state_variable_out(struct Chassis *chassis) {
  *                                     LQR                                     *
  *******************************************************************************/
 
+// LQR控制主入口，计算两条腿的输出
 void lqr_ctrl(struct Chassis *chassis) {
   chassis_K_matrix_fitting(chassis->leg_L.vmc.forward_kinematics.fk_L0.L0 * 0.25f, wheel_K_L, wheel_fitting_factor);
   chassis_K_matrix_fitting(chassis->leg_L.vmc.forward_kinematics.fk_L0.L0 * 0.25f, joint_K_L, joint_fitting_factor);

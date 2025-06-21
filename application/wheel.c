@@ -3,10 +3,13 @@
 #include "cmsis_os.h"
 #include "lk_8010.h"
 #include "lk_8016.h"
+// wheel.c
+// 提供对轮子和关节电机的初始化及控制接口
 
 struct Lk9025 wheel[3];
 struct Lk8010 joint[4];
 struct Lk8016 shoulder[2];
+// 初始化轮子电机和相关接口
 void wheel_init() {
   lk9025_init(&wheel[0], WHEEL_L_RECEIVE);
   lk9025_init(&wheel[1], WHEEL_R_RECEIVE);
@@ -16,6 +19,7 @@ void wheel_init() {
   lk9025_set_enable(CAN_1,HEAD_SEND);
 }
 
+// 初始化关节和肩部电机
 void joint_init() {
   lk8010_init(&joint[0], JOINT_LF_RECEIVE);
   lk8010_init(&joint[1], JOINT_LB_RECEIVE);
@@ -35,6 +39,7 @@ void joint_init() {
   lk8016_set_enable(CAN_2,JOINT_PB_SEND);
 }
 
+// 给左右轮子设定扭矩输出
 void set_wheel_torque(float torque_nm_L, float torque_nm_R, float power) {
   lk9025_torque_set(CAN_1,WHEEL_L_SEND,torque_nm_L);
   osDelay(1);
@@ -46,10 +51,12 @@ void set_wheel_torque(float torque_nm_L, float torque_nm_R, float power) {
   // lk9025_torque_set(CAN_2,WHEEL_R_SEND,torque_nm_R);
 }
 
+// 控制头部轮子的目标角度
 void set_wheel_position(float positions, uint16_t maxSpeed, uint8_t spinDirection){
   lk9025_position_set(CAN_1,HEAD_SEND,positions,maxSpeed,spinDirection);
 }
 
+// 控制肩部电机的扭矩输出
 void set_joint_torque(float torque_nm_L1, float torque_nm_L2) {
   // lk8010_torque_set(CAN_1,JOINT_LF_SEND,torque_nm_L1);
   // osDelay(1);
@@ -64,6 +71,7 @@ void set_joint_torque(float torque_nm_L1, float torque_nm_L2) {
   lk8016_torque_set(CAN_2,JOINT_PB_SEND,torque_nm_L2);
 }
 
+// 同时设置多关节的目标位置
 void set_joint_position(float *positions, uint16_t maxSpeed, uint8_t *spinDirection) {
   lk8010_position_set(CAN_1,JOINT_LF_SEND,360-positions[1],maxSpeed,spinDirection[0]);
   osDelay(1);
@@ -80,6 +88,7 @@ void set_joint_position(float *positions, uint16_t maxSpeed, uint8_t *spinDirect
   lk9025_position_set(CAN_1,HEAD_SEND,0,maxSpeed,spinDirection[6]);  
 }
 
+// 返回轮子电机数组指针
 struct Lk9025 *get_wheel_motors(){
   return wheel;
 }

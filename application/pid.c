@@ -17,6 +17,7 @@
 
 #include "pid.h"
 #include "main.h"
+// PID 控制算法实现，包含初始化和计算函数
 
 #define LimitMax(input, max)   \
     {                          \
