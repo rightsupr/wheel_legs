@@ -1,5 +1,6 @@
 #include "bsp_delay.h"
 #include "main.h"
+// 基于SysTick的微秒毫秒延时函数
 
 static uint8_t fac_us = 0;
 static uint32_t fac_ms = 0;

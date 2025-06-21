@@ -3,6 +3,7 @@
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_can.h"
 #include "lk_9025.h"
+// 封装 CAN 外设的初始化及接收回调
 #include "lk_8010.h"
 #include "lk_8016.h"
 #include "chassis.h"

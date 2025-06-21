@@ -6,6 +6,8 @@
 #include "stm32f4xx_hal_can.h"
 #include "user_lib.h"
 #include "chassis.h"
+// lk_8010.c
+// 控制和解析 LK8010 无刷电机的 CAN 通讯
 #define PI  3.14159265358979f
 extern CAN_HandleTypeDef hcan1;  //声明外部变量
 extern CAN_HandleTypeDef hcan2;
@@ -19,6 +21,7 @@ static CAN_TxHeaderTypeDef
     tx_msg = {0x00, 0, CAN_ID_STD, CAN_RTR_DATA, 0x08, DISABLE};
 static CAN_RxHeaderTypeDef rx_msg;
 
+// 注册电机到本地列表
 static uint8_t rx_data[9];
 
 static void lk8010_register(struct Lk8010 *motor) {
@@ -26,6 +29,7 @@ static void lk8010_register(struct Lk8010 *motor) {
   ++motors_len;
 }                //注册电机，这本质与定义变量并再给变量赋值是一个意思（如下的初始化过程）
 
+// 初始化电机结构体并加入列表
 void lk8010_init(struct Lk8010 *motor, uint32_t device_id) {
   motor->id = device_id;
 
@@ -37,6 +41,7 @@ void lk8010_init(struct Lk8010 *motor, uint32_t device_id) {
   lk8010_register(motor);
 }
 
+// 向电机发送使能指令
 void lk8010_set_enable(enum CanType can_type, enum lk8010SendID CMD_ID) {
   tx_msg.StdId = CMD_ID;
   tx_msg.IDE = CAN_ID_STD;
@@ -63,6 +68,7 @@ void lk8010_set_enable(enum CanType can_type, enum lk8010SendID CMD_ID) {
   }
 }
 
+// 设置电机的目标转矩
 void lk8010_torque_set(enum CanType can_type, enum lk8010SendID CMD_ID, float motor_torque) {
   tx_msg.StdId = CMD_ID;
   tx_msg.IDE = CAN_ID_STD;
@@ -96,6 +102,7 @@ void lk8010_torque_set(enum CanType can_type, enum lk8010SendID CMD_ID, float mo
   }
 }
 
+// 发送位置控制指令给电机
 void lk8010_position_set(enum CanType can_type, enum lk8010SendID CMD_ID, float position, uint16_t maxSpeed, uint8_t spinDirection) {
   tx_msg.StdId = CMD_ID;
   tx_msg.IDE = CAN_ID_STD;
@@ -125,6 +132,7 @@ void lk8010_position_set(enum CanType can_type, enum lk8010SendID CMD_ID, float 
   }
 }
 
+// 主动请求电机回传编码器角度
 void lk8010_encoder_read(enum CanType can_type, enum lk8010SendID CMD_ID) {
   tx_msg.StdId = CMD_ID;
   tx_msg.IDE = CAN_ID_STD;
@@ -151,6 +159,7 @@ void lk8010_encoder_read(enum CanType can_type, enum lk8010SendID CMD_ID) {
   }
 }
 
+// 清除电机错误状态
 void lk8010_clear_motor_errors(enum CanType can_type, enum lk8010SendID CMD_ID) {
   tx_msg.StdId = CMD_ID;
   tx_msg.IDE = CAN_ID_STD;
@@ -177,6 +186,7 @@ void lk8010_clear_motor_errors(enum CanType can_type, enum lk8010SendID CMD_ID) 
   }
 }   
 
+// 解析电机返回的编码器数据
 void lk8010_encoder_read_back(uint32_t id, uint8_t data[]) {
   uint32_t encoder_int;
   switch (id) {
@@ -207,6 +217,7 @@ void lk8010_encoder_read_back(uint32_t id, uint8_t data[]) {
 
 }
 
+// 将CAN报文解析为电机结构体参数
 void lk8010_can_msg_unpack(uint32_t id, uint8_t data[]) {
   int16_t speed_int, iq_int;
   uint16_t encoder_int;

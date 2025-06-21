@@ -21,6 +21,9 @@
 #define GRAVITY_A 9.8f
 
 
+// chassis.c
+// 底盘控制的主要逻辑，包括PID初始化、姿态获取以及任务循环
+
 
 const struct ChassisPhysicalConfig chassis_physical_config = {0.075f,
                                                               13.250f,
@@ -154,6 +157,9 @@ float yaw_feedback= 0.0f; //偏航角反馈值
 // uint8_t head_spinDirection=0;
 // static uint32_t last_update_time = 0; // 记录上一次调用的时间
 float power=0.0;
+// 初始化底盘使用的所有 PID 控制器参数
+
+// 初始化底盘使用的所有 PID 控制器参数
 float error_yaw=0.0;
 /*******************************************************************************
  *                                    Init                                     *
@@ -233,6 +239,7 @@ void chassis_init() {
  *******************************************************************************/
 //获取IMU数据，并滤波（三轴角、角速度、角加速度，角加速度的滤波值、绕z轴的角速度）
 static void get_IMU_info() {
+// 从IMU读取姿态信息，并进行简单重力补偿和滤波处理
   chassis.imu_reference.pitch_angle = -*(get_ins_angle() + 2);  //通过偏移访问不同轴的角度
   chassis.imu_reference.yaw_angle = -*(get_ins_angle() + 0);
   chassis.imu_reference.roll_angle = -*(get_ins_angle() + 1);
@@ -329,6 +336,7 @@ static void get_IMU_info() {
 //   chassis.chassis_ctrl_info.height_m = get_gimbal_msg()->chassis_ctrl_info.height_m;
 // }
 
+// 将计算得到的力矩/位置指令发送至各个电机
 //讲计算出来的扭矩值发送给电机
 static void chassis_motor_cmd_send() {
 #if DEBUG
@@ -414,6 +422,7 @@ struct Chassis *get_chassis() {
 // } //会被多次调用
 
 static void chassis_enable_task() {
+// 底盘使能状态下的主要控制循环，计算每个轮子/关节的目标值
   chassis.leg_L.ground_pid.p = CHASSIS_LEG_L0_PID_P;
   chassis.leg_R.ground_pid.p = CHASSIS_LEG_L0_PID_P;
   chassis.leg_L.ground_pid.d = CHASSIS_LEG_L0_PID_D;
@@ -422,6 +431,7 @@ static void chassis_enable_task() {
 
   //chassis_vx_kalman_run();
 }    //利用模型和传感器数据获得扭矩值
+// 底盘关闭时将所有输出清零
 
 static void chassis_disable_task() {
   chassis.leg_L.wheel_torque = 0;
@@ -439,6 +449,7 @@ static void chassis_disable_task() {
   lk9025_set_enable(CAN_2, WHEEL_L_SEND);
   lk9025_set_enable(CAN_2, WHEEL_R_SEND);
 }
+// 基于PID的关节角度闭环控制，返回控制输出
 
 float joint_position_control(pid_type_def
    *pid,float target_position, float current_position)
@@ -450,6 +461,7 @@ float joint_position_control(pid_type_def
     return output;
 }
 
+// 将串口接收的字符串按4位一组拆分为三个浮点数
 void dismantle(char *str)
 {
     int i;
@@ -465,6 +477,7 @@ void dismantle(char *str)
         arr[i] = num;
     }
 }
+// 归一化角度差值到 -180~180 区间
 
 float normalize_diff(float diff) {
   if(diff > 180.0f) {
@@ -475,11 +488,13 @@ float normalize_diff(float diff) {
   return diff;
 }
 
+// 根据目标角度与当前角度的差值确定最短旋转方向
 int determine_spin_direction(float target, float current) {
   float diff = normalize_diff(target - current);
   return (diff < 0) ? 1 : 0;
 }
 
+// 底盘主任务，负责解析遥控器和传感器数据并控制电机
 extern void chassis_task(void const *pvParameters) {
   chassis_init();   //底盘初始化
   

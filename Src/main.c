@@ -27,6 +27,7 @@
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
+// 主函数，完成外设初始化并启动RTOS调度
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -63,6 +64,7 @@ const RC_ctrl_t *local_rc_ctrl;
 void SystemClock_Config(void);
 void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
+// 简易的串口打印函数，使用DMA发送
 void usart_printf(const char *fmt,...)
 {
     static uint8_t tx_buf[256] = {0};
@@ -141,6 +143,7 @@ int main(void)
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  // RTOS启动后主循环不会执行
   while (1)
   {
     /* USER CODE END WHILE */

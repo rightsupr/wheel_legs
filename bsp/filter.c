@@ -1,30 +1,31 @@
 #include "filter.h"
+// ç®€å•çš„æ»‘åŠ¨å¹³å‡æ»¤æ³¢å™¨å®ç°
 
 void init_filter(struct MovingAverageFilter *filter) {
-  // ½«´°¿ÚÊı×éÖĞµÄÔªËØ³õÊ¼»¯Îª0
+  // å°†çª—å£æ•°ç»„ä¸­çš„å…ƒç´ åˆå§‹åŒ–ä¸º0
   for (int i = 0; i < WINDOW_SIZE; i++) {
     filter->window[i] = 0;
   }
 
-  // ³õÊ¼»¯ÆäËû±äÁ¿
+  // åˆå§‹åŒ–å…¶ä»–å˜é‡
   filter->index = 0;
   filter->sum = 0;
 }
 
-// ¸üĞÂÂË²¨Æ÷×´Ì¬
+// æ›´æ–°æ»¤æ³¢å™¨çŠ¶æ€
 void updateFilter(struct MovingAverageFilter *filter, float newValue) {
-  // ¼õÈ¥¾ÉÖµ
+  // å‡å»æ—§å€¼
   filter->sum -= filter->window[filter->index];
 
-  // Ìí¼ÓĞÂÖµ
+  // æ·»åŠ æ–°å€¼
   filter->window[filter->index] = newValue;
   filter->sum += newValue;
 
-  // ¸üĞÂË÷Òı
+  // æ›´æ–°ç´¢å¼•
   filter->index = (filter->index + 1) % WINDOW_SIZE;
 }
 
 float getFilteredValue(const struct MovingAverageFilter *filter) {
-  // ¼ÆËãÆ½¾ùÖµ
+  // è®¡ç®—å¹³å‡å€¼
   return filter->sum / WINDOW_SIZE;
 }
